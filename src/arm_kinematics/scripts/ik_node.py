@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+import math
+
+import rospy
+from arm_msgs.srv import SolveIK, SolveIKResponse
+
+from arm_kinematics.ik import ArmGeometry, JointConfig, solve_numeric
+
+
+def main():
+    rospy.init_node("ik")
+    config = rospy.get_param("/arm")
+    geometry = ArmGeometry.from_params(config["links"])
+    joints = JointConfig.from_params(config["joints"])
+    floor_clearance = float(config.get("floor_clearance", 0.01))
+    initial_q = config.get("initial_q", [0.0, 1.0, -1.5, -1.0])
+    current_q = [float(value) for value in initial_q]
+    rospy.loginfo("Using numeric damped-least-squares inverse-kinematics solver")
+
+    def handle(request):
+        solution = solve_numeric(
+            request.x, request.y, request.z, geometry, joints,
+            current_q, floor_clearance,
+            pitch_target=None if request.allow_tilt else math.radians(-90),
+        )
+        if solution is None:
+            return SolveIKResponse(
+                success=False,
+                message="no solution: out of reach, outside joint limits, "
+                "or arm would hit the floor",
+            )
+        current_q[:] = solution.q
+        return SolveIKResponse(
+            success=True,
+            q_rad=list(solution.q),
+            servo_deg=joints.to_servo_deg(solution.q),
+            pitch_deg=math.degrees(solution.pitch),
+            message="ok",
+        )
+
+    rospy.Service("solve_ik", SolveIK, handle)
+    rospy.loginfo("IK service ready: /solve_ik")
+    rospy.spin()
+
+
+if __name__ == "__main__":
+    main()

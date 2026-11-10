@@ -1,0 +1,4 @@
+<launch>
+  <rosparam command="load" file="$(find arm_kinematics)/config/arm.yaml"/>
+  <node pkg="arm_kinematics" type="ik_node.py" name="ik" output="screen"/>
+</launch>

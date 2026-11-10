@@ -1,4 +1,3 @@
-import math
 from dataclasses import dataclass
 import cv2
 import numpy as np
@@ -84,7 +83,7 @@ class BlockDetector:
         img = self.undistort(frame_bgr).copy()
         for d in detections:
             cv2.circle(img, (int(d.u), int(d.v)), 5, (255, 255, 255), -1)
-            label = f"{d.color} ({d.x*100:.1f},{d.y*100:.1f})cm {math.degrees(d.yaw):.0f}deg"
+            label = f"{d.color} ({d.x*100:.1f},{d.y*100:.1f})cm"
             cv2.putText(img, label, (int(d.u) + 8, int(d.v) - 8),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 0), 3, cv2.LINE_AA)
             cv2.putText(img, label, (int(d.u) + 8, int(d.v) - 8),

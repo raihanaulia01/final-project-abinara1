@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Compute the pixel to table homography from markers at known positions.
-
-1. Put 4+ markers on the table. Measure each one in centimeters from the robot base axis: x forward, y left.
+"""Compute the pixel to floor homography from markers at known positions.
+1. Put 4+ markers on the floor. Measure each one in centimeters from the robot base axis: x forward, y left.
 2. Run, listing the points in the order you will click them: 
     ./calibrate_homography.py --device 0 --points "10,-25 10,25 30,-12 30,12"
 3. space freezes the live view. Click each marker centre in order. enter computes and saves. 'r' resets the clicks, esc quits.

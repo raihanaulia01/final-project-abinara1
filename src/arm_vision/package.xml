@@ -2,7 +2,7 @@
 <package format="2">
   <name>arm_vision</name>
   <version>0.1.0</version>
-  <description>Block detection (HSV) and pixel-to-table calibration</description>
+  <description>Block detection (HSV) and pixel-to-floor calibration</description>
   <maintainer email="you@example.com">team</maintainer>
   <license>MIT</license>
   <buildtool_depend>catkin</buildtool_depend>
