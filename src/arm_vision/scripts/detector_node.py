@@ -73,7 +73,7 @@ def main():
             msg = BlockArray()
             msg.header.stamp = rospy.Time.now()
             msg.header.frame_id = frame_id
-            msg.blocks = [Block(color=d.color, x=d.x, y=d.y, yaw=d.yaw, u=d.u, v=d.v, area=d.area) for d in dets]
+            msg.blocks = [Block(color=d.color, x=d.x, y=d.y, u=d.u, v=d.v, area=d.area) for d in dets]
             pub.publish(msg)
             if dbg_pub is not None:
                 dbg_pub.publish(bridge.cv2_to_imgmsg(detector.debug_image(frame, dets), "bgr8"))

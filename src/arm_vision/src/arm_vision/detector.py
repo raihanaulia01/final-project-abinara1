@@ -12,7 +12,6 @@ class Detection:
     v: float
     x: float # real world positions
     y: float 
-    yaw: float
     area: float
 
 def pixel_to_table(H, u, v):
@@ -75,22 +74,10 @@ class BlockDetector:
                 area = cv2.contourArea(c)
                 if not (self.min_area <= area <= self.max_area):
                     continue
-                (u, v), (w, h), ang = cv2.minAreaRect(c)
-                if w < h:
-                    ang += 90.0
-                du, dv = math.cos(math.radians(ang)), math.sin(math.radians(ang))
+                (u, v), _, _ = cv2.minAreaRect(c)
+                x, y = pixel_to_table(self.H, u, v)
 
-                # Orientation is measured in the table frame, so map two pixels.
-                x0, y0 = pixel_to_table(self.H, u, v)
-                x1, y1 = pixel_to_table(self.H, u + 10 * du, v + 10 * dv)
-                yaw = math.atan2(y1 - y0, x1 - x0)
-                # a block is symmetric under 180 deg: normalise into (-pi/2, pi/2]
-                if yaw > math.pi / 2:
-                    yaw -= math.pi
-                elif yaw <= -math.pi / 2:
-                    yaw += math.pi
-
-                out.append(Detection(name, u, v, x0, y0, yaw, area))
+                out.append(Detection(name, u, v, x, y, area))
         return out
 
     def debug_image(self, frame_bgr, detections):
