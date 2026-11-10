@@ -15,5 +15,6 @@
   <node
     name="rviz"
     pkg="rviz"
-    type="rviz" />
+    type="rviz"
+    args="-d $(find robot_arm)/urdf.rviz" />
 </launch>

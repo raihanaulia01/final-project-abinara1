@@ -1,1 +1,1 @@
-controller_joint_names: ['', 'servo1_joint', 'servo2_joint', 'servo3_joint', 'servo4_joint', 'servo5_joint', 'servo6_joint', ]
+controller_joint_names: ['', 'servo1_joint', 'servo2_joint', 'servo3_joint', 'servo4_joint', 'joint_kanan', 'joint_kiri', ]
