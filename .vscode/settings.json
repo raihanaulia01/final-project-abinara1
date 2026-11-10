@@ -1,0 +1,8 @@
+{
+  "cmake.sourceDirectory": "/home/raihan/Projects/final-project-abinara1/src",
+  "cSpell.enabled": false,
+  "python.analysis.extraPaths": [
+    "./src/arm_vision/src",
+    "./src/arm_kinematics/src"
+  ]
+}

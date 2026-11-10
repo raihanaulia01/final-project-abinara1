@@ -1,0 +1,5 @@
+# ! PLACEHOLDER CALIBRATE USING calibrate_homography.py !
+homography:
+  - [1.0, 0.0, 0.0]
+  - [0.0, 1.0, 0.0]
+  - [0.0, 0.0, 1.0]

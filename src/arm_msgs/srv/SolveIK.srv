@@ -1,0 +1,11 @@
+# Ask for joint angles that put the gripper tip at (x, y, z) in the robot base frame (meters).
+float32 x
+float32 y
+float32 z
+bool allow_tilt      # false: gripper must point straight down; true: may tilt if vertical is unreachable
+---
+bool success
+float32[] q_rad      # joint angles in the model frame [base, shoulder, elbow, wrist]
+float32[] servo_deg  # same angles after direction/zero-offset mapping, ready to send to the firmware
+float32 pitch_deg    # gripper pitch actually used (-90 = straight down)
+string message
