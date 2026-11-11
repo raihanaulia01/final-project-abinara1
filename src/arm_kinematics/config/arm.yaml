@@ -1,12 +1,24 @@
-# ! Placeholder values, update with the corrected URDF
 arm:
-  # With PWM servos this is the last commanded pose, not measured feedback.
+  # With PWM servos this is the last commanded pose, not actual feedback from the servo
   initial_q: [0.0, 1.0, -1.5, -1.0]
-  links:
-    base_height: 0.08
-    upper_arm: 0.20
-    forearm: 0.20
-    tool_length: 0.10
+  # Joint values (origin, rpy, axis) are taken from the robot urdf
+  # TCP is the midpoint between the two jaw tips at zero gripper pose
+  chain:
+    - origin: [0.007168, 0.0, 0.1125]
+      rpy: [0.0, 0.0, 0.0]
+      axis: [-0.063586, 0.0, -0.99798]
+    - origin: [0.0024206, -0.045, 0.04035]
+      rpy: [1.5708, 0.0, 0.0]
+      axis: [0.0, 0.0, -1.0]
+    - origin: [0.08209, 0.092539, 0.0]
+      rpy: [0.0, 0.0, 0.0]
+      axis: [0.0, 0.0, -1.0]
+    - origin: [0.12165, -0.022441, 0.0]
+      rpy: [0.0, 0.0, 0.0]
+      axis: [0.0, 0.0, 1.0]
+  tcp:
+    origin: [0.124553, -0.010776, -0.023455]
+    rpy: [0.0, 0.0, 0.0]
   joints:
     limits:
       - [-1.5708, 1.5708]
@@ -16,3 +28,7 @@ arm:
     zero_deg: [0.0, 0.0, 0.0, 0.0]
     direction: [1.0, 1.0, 1.0, 1.0]
   floor_clearance: 0.01
+  ik:
+    max_iterations: 500
+    tolerance: 1.0e-5
+    damping: 0.1

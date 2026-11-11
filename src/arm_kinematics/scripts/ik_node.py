@@ -10,10 +10,14 @@ from arm_kinematics.ik import ArmGeometry, JointConfig, solve_numeric
 def main():
     rospy.init_node("ik")
     config = rospy.get_param("/arm")
-    geometry = ArmGeometry.from_params(config["links"])
+    geometry = ArmGeometry.from_params(config)
     joints = JointConfig.from_params(config["joints"])
     floor_clearance = float(config.get("floor_clearance", 0.01))
     initial_q = config.get("initial_q", [0.0, 1.0, -1.5, -1.0])
+    ik_config = config.get("ik", {})
+    max_iterations = int(ik_config.get("max_iterations", 500))
+    tolerance = float(ik_config.get("tolerance", 1.0e-5))
+    damping = float(ik_config.get("damping", 0.1))
     current_q = [float(value) for value in initial_q]
     rospy.loginfo("Using numeric damped-least-squares inverse-kinematics solver")
 
@@ -21,6 +25,9 @@ def main():
         solution = solve_numeric(
             request.x, request.y, request.z, geometry, joints,
             current_q, floor_clearance,
+            max_iterations=max_iterations,
+            tolerance=tolerance,
+            damping=damping,
             pitch_target=None if request.allow_tilt else math.radians(-90),
         )
         if solution is None:

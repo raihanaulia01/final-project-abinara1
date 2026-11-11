@@ -1,24 +1,39 @@
 import math
 from dataclasses import dataclass
-from typing import Dict, Optional, Sequence, Tuple
+from typing import Dict, Mapping, Optional, Sequence, Tuple, cast
 
 import numpy as np
 
 
 @dataclass(frozen=True)
 class ArmGeometry:
-    base_height: float
-    upper_arm: float
-    forearm: float
-    tool_length: float
+    joint_origins: Tuple[Tuple[float, float, float], ...]
+    joint_rpys: Tuple[Tuple[float, float, float], ...]
+    joint_axes: Tuple[Tuple[float, float, float], ...]
+    tcp_origin: Tuple[float, float, float]
+    tcp_rpy: Tuple[float, float, float]
 
     @classmethod
-    def from_params(cls, params: Dict[str, float]) -> "ArmGeometry":
+    def from_params(cls, params: Dict[str, object]) -> "ArmGeometry":
+        chain = cast(Sequence[Mapping[str, Sequence[float]]], params["chain"])
+        if len(chain) != 4:
+            raise ValueError("kinematic chain must contain exactly four joints")
+        tcp = cast(Mapping[str, Sequence[float]], params["tcp"])
         return cls(
-            base_height=float(params["base_height"]),
-            upper_arm=float(params["upper_arm"]),
-            forearm=float(params["forearm"]),
-            tool_length=float(params["tool_length"]),
+            joint_origins=tuple(
+                _vector3(joint["origin"])
+                for joint in chain
+            ),
+            joint_rpys=tuple(
+                _vector3(joint["rpy"])
+                for joint in chain
+            ),
+            joint_axes=tuple(
+                _vector3(joint["axis"])
+                for joint in chain
+            ),
+            tcp_origin=_vector3(tcp["origin"]),
+            tcp_rpy=_vector3(tcp["rpy"]),
         )
 
 
@@ -59,6 +74,13 @@ class JointConfig:
 class Solution:
     q: Tuple[float, float, float, float]
     pitch: float
+
+
+def _vector3(values: Sequence[float]) -> Tuple[float, float, float]:
+    if len(values) != 3:
+        raise ValueError("kinematic vectors must contain exactly three values")
+    x, y, z = values
+    return float(x), float(y), float(z)
 
 
 def forward_position(q: Sequence[float], geometry: ArmGeometry) -> Tuple[float, float, float]:
@@ -114,12 +136,11 @@ def solve_numeric(
 def _position_jacobian(q: Sequence[float], geometry: ArmGeometry) -> np.ndarray:
     transforms = _forward_transforms(q, geometry)
     tool_position = transforms[-1][:3, 3]
-    joint_origins = [transform[:3, 3] for transform in transforms[:4]]
+    joint_transforms = transforms[1:5]
+    joint_origins = [transform[:3, 3] for transform in joint_transforms]
     joint_axes = [
-        transforms[0][:3, :3] @ np.array([0.0, 0.0, 1.0]),
-        transforms[1][:3, :3] @ np.array([0.0, -1.0, 0.0]),
-        transforms[2][:3, :3] @ np.array([0.0, -1.0, 0.0]),
-        transforms[3][:3, :3] @ np.array([0.0, -1.0, 0.0]),
+        transform[:3, :3] @ (np.array(axis) / np.linalg.norm(axis))
+        for transform, axis in zip(joint_transforms, geometry.joint_axes)
     ]
 
     jacobian = np.zeros((3, 4), dtype=float)
@@ -129,74 +150,91 @@ def _position_jacobian(q: Sequence[float], geometry: ArmGeometry) -> np.ndarray:
 
 
 def _forward_transforms(q: Sequence[float], geometry: ArmGeometry) -> Tuple[np.ndarray, ...]:
-    """Return transforms at the four joint origins and the tool tip.
-
-    The temporary model uses a vertical base yaw followed by three relative
-    pitch joints. Pitch is represented as a rotation about the local -Y axis.
-    """
-    base, shoulder, elbow, wrist = q
+    """Return transforms at joint origins and the configured TCP."""
     transforms = [np.eye(4)]
-    transforms.append(
-        transforms[-1]
-        @ _rotation_z(base)
-        @ _translation(0.0, 0.0, geometry.base_height)
-    )
-    transforms.append(
-        transforms[-1]
-        @ _rotation_y(-shoulder)
-        @ _translation(geometry.upper_arm, 0.0, 0.0)
-    )
-    transforms.append(
-        transforms[-1]
-        @ _rotation_y(-elbow)
-        @ _translation(geometry.forearm, 0.0, 0.0)
-    )
-    transforms.append(
-        transforms[-1]
-        @ _rotation_y(-wrist)
-        @ _translation(geometry.tool_length, 0.0, 0.0)
-    )
+    current = transforms[0]
+    
+    for angle, origin, rpy, axis in zip(q, geometry.joint_origins, geometry.joint_rpys, geometry.joint_axes):
+        joint_origin = current @ _origin_transform(origin, rpy)
+        transforms.append(joint_origin)
+        current = joint_origin @ _axis_rotation(axis, angle)
+        
+    transforms.append(current @ _origin_transform(geometry.tcp_origin, geometry.tcp_rpy))
     return tuple(transforms)
 
 
-def _translation(x: float, y: float, z: float) -> np.ndarray:
-    transform = np.eye(4)
-    transform[:3, 3] = [x, y, z]
+# def _translation(x: float, y: float, z: float) -> np.ndarray:
+#     transform = np.eye(4)
+#     transform[:3, 3] = [x, y, z]
+#     return transform
+
+
+def _rpy_transform(rpy: Sequence[float]) -> np.ndarray:
+    roll, pitch, yaw = rpy
+    return _homogeneous(
+        _rotation_x(roll)[:3, :3]
+        @ _rotation_y(pitch)[:3, :3]
+        @ _rotation_z(yaw)[:3, :3]
+    )
+
+
+def _origin_transform(origin: Sequence[float], rpy: Sequence[float]) -> np.ndarray:
+    transform = _rpy_transform(rpy)
+    transform[:3, 3] = origin
     return transform
+
+
+def _axis_rotation(axis: Sequence[float], angle: float) -> np.ndarray:
+    unit_axis = np.array(axis, dtype=float)
+    norm = np.linalg.norm(unit_axis)
+    if norm == 0:
+        raise ValueError("revolute joint axis must be non-zero")
+    x, y, z = unit_axis / norm
+    cosine, sine = math.cos(angle), math.sin(angle)
+    rotation = np.array([
+        [cosine + x * x * (1 - cosine), x * y * (1 - cosine) - z * sine,
+         x * z * (1 - cosine) + y * sine],
+        [y * x * (1 - cosine) + z * sine, cosine + y * y * (1 - cosine),
+         y * z * (1 - cosine) - x * sine],
+        [z * x * (1 - cosine) - y * sine, z * y * (1 - cosine) + x * sine,
+         cosine + z * z * (1 - cosine)],
+    ])
+    return _homogeneous(rotation)
+
+
+def _homogeneous(rotation: np.ndarray) -> np.ndarray:
+    transform = np.eye(4)
+    transform[:3, :3] = rotation
+    return transform
+
+
+def _rotation_x(angle: float) -> np.ndarray:
+    cosine, sine = math.cos(angle), math.sin(angle)
+    return _homogeneous(np.array([
+        [1.0, 0.0, 0.0],
+        [0.0, cosine, -sine],
+        [0.0, sine, cosine],
+    ]))
 
 
 def _rotation_y(angle: float) -> np.ndarray:
     cosine, sine = math.cos(angle), math.sin(angle)
-    return np.array([
-        [cosine, 0.0, sine, 0.0],
-        [0.0, 1.0, 0.0, 0.0],
-        [-sine, 0.0, cosine, 0.0],
-        [0.0, 0.0, 0.0, 1.0],
-    ])
+    return _homogeneous(np.array([
+        [cosine, 0.0, sine],
+        [0.0, 1.0, 0.0],
+        [-sine, 0.0, cosine],
+    ]))
 
 
 def _rotation_z(angle: float) -> np.ndarray:
     cosine, sine = math.cos(angle), math.sin(angle)
-    return np.array([
-        [cosine, -sine, 0.0, 0.0],
-        [sine, cosine, 0.0, 0.0],
-        [0.0, 0.0, 1.0, 0.0],
-        [0.0, 0.0, 0.0, 1.0],
-    ])
+    return _homogeneous(np.array([
+        [cosine, -sine, 0.0],
+        [sine, cosine, 0.0],
+        [0.0, 0.0, 1.0],
+    ]))
 
 
 def _segment_heights(q: Sequence[float], geometry: ArmGeometry) -> Tuple[float, ...]:
-    _, shoulder, elbow, wrist = q
-    p2 = shoulder + elbow
-    p3 = p2 + wrist
-    return (
-        geometry.base_height,
-        geometry.base_height + geometry.upper_arm * math.sin(shoulder),
-        geometry.base_height
-        + geometry.upper_arm * math.sin(shoulder)
-        + geometry.forearm * math.sin(p2),
-        geometry.base_height
-        + geometry.upper_arm * math.sin(shoulder)
-        + geometry.forearm * math.sin(p2)
-        + geometry.tool_length * math.sin(p3),
-    )
+    transforms = _forward_transforms(q, geometry)
+    return tuple(float(transform[2, 3]) for transform in transforms[1:])
