@@ -1,30 +1,46 @@
 arm:
   # With PWM servos this is the last commanded pose, not actual feedback from the servo
+  # (model frame, rad: q1 CCW yaw, q2 = 0 horizontal and positive raises, q3/q4 relative to
+  # the previous link, negative elbow = bent down, pitch = q2 + q3 + q4)
   initial_q: [0.0, 1.0, -1.5, -1.0]
-  # Joint values (origin, rpy, axis) are taken from the robot urdf
-  # TCP is the midpoint between the two jaw tips at zero gripper pose
+  # origin / rpy / axis are copied from robot_arm_1.urdf.
+  # direction / offset convert the MODEL-frame q to the URDF joint value:
+  #     urdf_value = direction * q + offset
+  # (servo2/3 pitch DOWN for positive URDF values and the URDF zero pose is not flat,
+  #  so without this the IK and the pitch constraint are wrong)
   chain:
     - origin: [0.007168, 0.0, 0.1125]
       rpy: [0.0, 0.0, 0.0]
       axis: [-0.063586, 0.0, -0.99798]
+      direction: -1.0
+      offset: 0.0
     - origin: [0.0024206, -0.045, 0.04035]
       rpy: [1.5708, 0.0, 0.0]
       axis: [0.0, 0.0, -1.0]
+      direction: -1.0
+      offset: 0.8451623297845661
     - origin: [0.08209, 0.092539, 0.0]
       rpy: [0.0, 0.0, 0.0]
       axis: [0.0, 0.0, -1.0]
+      direction: -1.0
+      offset: -1.0275833711790798
     - origin: [0.12165, -0.022441, 0.0]
       rpy: [0.0, 0.0, 0.0]
       axis: [0.0, 0.0, 1.0]
+      direction: 1.0
+      offset: 0.17853895860548616
+  snap_axis_tol_deg: 5.0
   tcp:
-    origin: [0.124553, -0.010776, -0.023455]
+    origin: [0.12516548680794948, -0.03442343363876876, -0.0469905091830076]
     rpy: [0.0, 0.0, 0.0]
   joints:
+    # ! PLACEHOLDER limits,  replace with the real servo travel.
     limits:
       - [-1.5708, 1.5708]
       - [0.0, 3.1416]
       - [-2.618, 0.5236]
       - [-2.0944, 2.0944]
+    # servo_deg = zero_deg + direction * degrees(q) (applied only for the servo output)
     zero_deg: [0.0, 0.0, 0.0, 0.0]
     direction: [1.0, 1.0, 1.0, 1.0]
   floor_clearance: 0.01

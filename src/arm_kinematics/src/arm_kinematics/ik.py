@@ -12,6 +12,10 @@ class ArmGeometry:
     joint_axes: Tuple[Tuple[float, float, float], ...]
     tcp_origin: Tuple[float, float, float]
     tcp_rpy: Tuple[float, float, float]
+    # urdf_joint_value = direction * q + offset, where q is the model-frame angle
+    # (q1 CCW yaw, q2 = 0 horizontal and positive raises, q3/q4 relative, pitch = q2+q3+q4)
+    joint_directions: Tuple[float, ...] = (1.0, 1.0, 1.0, 1.0)
+    joint_offsets: Tuple[float, ...] = (0.0, 0.0, 0.0, 0.0)
 
     @classmethod
     def from_params(cls, params: Dict[str, object]) -> "ArmGeometry":
@@ -19,6 +23,7 @@ class ArmGeometry:
         if len(chain) != 4:
             raise ValueError("kinematic chain must contain exactly four joints")
         tcp = cast(Mapping[str, Sequence[float]], params["tcp"])
+        snap_tol = float(params.get("snap_axis_tol_deg", 5.0))
         return cls(
             joint_origins=tuple(
                 _vector3(joint["origin"])
@@ -29,11 +34,17 @@ class ArmGeometry:
                 for joint in chain
             ),
             joint_axes=tuple(
-                _vector3(joint["axis"])
+                _snap_axis(_vector3(joint["axis"]), snap_tol)
                 for joint in chain
             ),
             tcp_origin=_vector3(tcp["origin"]),
             tcp_rpy=_vector3(tcp["rpy"]),
+            joint_directions=tuple(
+                float(joint.get("direction", 1.0)) for joint in chain
+            ),
+            joint_offsets=tuple(
+                float(joint.get("offset", 0.0)) for joint in chain
+            ),
         )
 
 
@@ -83,10 +94,68 @@ def _vector3(values: Sequence[float]) -> Tuple[float, float, float]:
     return float(x), float(y), float(z)
 
 
+def _snap_axis(axis: Tuple[float, float, float], tol_deg: float) -> Tuple[float, float, float]:
+    """Snap a nearly axis-aligned axis (e.g. -0.0636 0 -0.998) onto +-X/Y/Z.
+
+    tol_deg <= 0 keeps the URDF axis exactly (only normalised).
+    """
+    vec = np.array(axis, dtype=float)
+    norm = np.linalg.norm(vec)
+    if norm == 0:
+        raise ValueError("revolute joint axis must be non-zero")
+    vec = vec / norm
+    if tol_deg > 0:
+        cos_tol = math.cos(math.radians(tol_deg))
+        for index in range(3):
+            for sign in (1.0, -1.0):
+                if vec[index] * sign >= cos_tol:
+                    snapped = [0.0, 0.0, 0.0]
+                    snapped[index] = sign
+                    return tuple(snapped)  # type: ignore[return-value]
+    return float(vec[0]), float(vec[1]), float(vec[2])
+
+
 def forward_position(q: Sequence[float], geometry: ArmGeometry) -> Tuple[float, float, float]:
     return tuple(_forward_transforms(q, geometry)[-1][:3, 3])
 
 def solve_numeric(
+    x: float,
+    y: float,
+    z: float,
+    geometry: ArmGeometry,
+    joints: JointConfig,
+    initial_q: Sequence[float],
+    floor_clearance: float,
+    max_iterations: int = 100,
+    tolerance: float = 1e-5,
+    damping: float = 0.1,
+    pitch_target: Optional[float] = None,
+) -> Optional[Solution]:
+    """Try the previous pose first (smooth motion), then a few elbow seeds."""
+    if len(initial_q) != 4:
+        raise ValueError("initial_q must contain exactly four joint angles")
+    for seed in [list(initial_q)] + _default_seeds(x, y, pitch_target):
+        solution = _solve_once(
+            x, y, z, geometry, joints, seed, floor_clearance,
+            max_iterations=max_iterations, tolerance=tolerance,
+            damping=damping, pitch_target=pitch_target,
+        )
+        if solution is not None:
+            return solution
+    return None
+
+
+def _default_seeds(x: float, y: float, pitch_target: Optional[float]) -> list:
+    yaw = math.atan2(y, x)
+    seeds = []
+    for shoulder, elbow in ((0.8, -1.2), (0.4, -0.8), (1.0, -1.8),
+                            (0.2, -0.4), (1.2, -0.6), (0.0, 0.0)):
+        wrist = pitch_target - shoulder - elbow if pitch_target is not None else -1.0
+        seeds.append([yaw, shoulder, elbow, wrist])
+    return seeds
+
+
+def _solve_once(
     x: float,
     y: float,
     z: float,
@@ -145,7 +214,7 @@ def _position_jacobian(q: Sequence[float], geometry: ArmGeometry) -> np.ndarray:
 
     jacobian = np.zeros((3, 4), dtype=float)
     for index, (axis, origin) in enumerate(zip(joint_axes, joint_origins)):
-        jacobian[:, index] = np.cross(axis, tool_position - origin)
+        jacobian[:, index] = (geometry.joint_directions[index] * np.cross(axis, tool_position - origin))
     return jacobian
 
 
@@ -154,10 +223,12 @@ def _forward_transforms(q: Sequence[float], geometry: ArmGeometry) -> Tuple[np.n
     transforms = [np.eye(4)]
     current = transforms[0]
     
-    for angle, origin, rpy, axis in zip(q, geometry.joint_origins, geometry.joint_rpys, geometry.joint_axes):
+    for angle, origin, rpy, axis, direction, offset in zip(
+        q, geometry.joint_origins, geometry.joint_rpys, geometry.joint_axes, 
+        geometry.joint_directions, geometry.joint_offsets):
         joint_origin = current @ _origin_transform(origin, rpy)
         transforms.append(joint_origin)
-        current = joint_origin @ _axis_rotation(axis, angle)
+        current = joint_origin @ _axis_rotation(axis, direction * angle + offset)
         
     transforms.append(current @ _origin_transform(geometry.tcp_origin, geometry.tcp_rpy))
     return tuple(transforms)
@@ -172,9 +243,9 @@ def _forward_transforms(q: Sequence[float], geometry: ArmGeometry) -> Tuple[np.n
 def _rpy_transform(rpy: Sequence[float]) -> np.ndarray:
     roll, pitch, yaw = rpy
     return _homogeneous(
-        _rotation_x(roll)[:3, :3]
+        _rotation_z(yaw)[:3, :3]
         @ _rotation_y(pitch)[:3, :3]
-        @ _rotation_z(yaw)[:3, :3]
+        @ _rotation_x(roll)[:3, :3]
     )
 
 

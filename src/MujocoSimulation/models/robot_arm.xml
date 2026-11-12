@@ -1,0 +1,147 @@
+<mujoco model="robot_arm">
+  <default>
+    <default class="robot">
+      <default class="visual">
+        <geom contype="0" conaffinity="0" group="2" />
+      </default>
+      <default class="collision">
+        <geom contype="0" conaffinity="1" group="3" />
+      </default>
+    </default>
+    <default class="floor">
+      <geom type="plane" size="0 0 0.05" material="groundplane" />
+    </default>
+  </default>
+
+  <option
+    timestep="0.001"
+    iterations="100"
+    solver="Newton"
+    gravity="0 0 -9.81"/>
+
+  <compiler angle="radian" meshdir="../../robot_arm/meshes" balanceinertia="true" />
+
+  <visual>
+    <global offwidth="3840" offheight="2160" />
+  </visual>
+
+  <worldbody>
+    <light pos="0.2 0 1.5" dir="0 0 -1" diffuse="0.5 0.5 0.5" castshadow="false"/>
+
+    <geom name="table" type="plane" size="0.8 0.8 0.01" pos="0 0 0" rgba="0.35 0.35 0.35 1"
+          contype="1" conaffinity="1" friction="1 0.005 0.0001"/>
+
+    <camera name="arena_cam" pos="0.20 0 0.60" xyaxes="0 -1 0 1 0 0" fovy="55"/>
+
+    <body name="base_link" childclass="robot" pos="0 0 0">
+      <geom name="base_link_collision" type="mesh" mesh="base_link_collision_base_link" class="collision" />
+      <geom name="base_link_visual" type="mesh" mesh="base_link_base_link" material="default_material" class="visual" />
+      <body name="servo1_link" pos="0.007168 0 0.1125">
+        <inertial pos="0.0025516 2.6409E-05 0.013925" mass="0.25507" diaginertia="0.0003669 0.00028286 0.00047477" />
+        <joint name="servo1_joint" type="hinge" range="-3.14 3.14"
+                axis="-0.063586 0 -0.99798" damping="1" />
+        <geom name="servo1_link_collision" type="mesh" mesh="servo1_link_collision_servo1_link" class="collision" />
+        <geom name="servo1_link_visual" type="mesh" mesh="servo1_link_servo1_link" material="default_material" class="visual" />
+        <body name="servo2_link" pos="0.0024206 -0.045 0.04035" quat="0.7071 0.7071 0 0">
+          <inertial pos="0.055743 0.06332 -0.045271" mass="0.25548" diaginertia="0.00051295 0.00046431 0.00051352" />
+          <joint name="servo2_joint" type="hinge" range="-3.1416 3.1416"
+                  axis="0 0 -1" damping="1" />
+          <geom name="servo2_link_collision" type="mesh" mesh="servo2_link_collision_servo2_link" class="collision" />
+          <geom name="servo2_link_visual" type="mesh" mesh="servo2_link_servo2_link" material="default_material" class="visual" />
+          <body name="servo3_link" pos="0.08209 0.092539 0">
+            <inertial pos="0.083018 -0.014989 -0.045271" mass="0.25548" diaginertia="0.00028286 0.00069441 0.00051352" />
+            <joint name="servo3_joint" type="hinge" range="-3.14 3.14"
+                    axis="0 0 -1" damping="1" />
+            <geom name="servo3_link_collision" type="mesh" mesh="servo3_link_collision_servo3_link" class="collision" />
+            <geom name="servo3_link_visual" type="mesh" mesh="servo3_link_servo3_link" material="default_material" class="visual" />
+            <body name="servo4_link" pos="0.12165 -0.022441 0">
+              <inertial pos="0.033751 -0.010033 -0.045033" mass="0.094515" diaginertia="0.00011605 0.00014625 6.7154e-05" />
+              <joint name="servo4_joint" type="hinge" range="-3.14 3.14"
+                      axis="0 0 1" damping="1" />
+              <geom name="servo4_link_collision" type="mesh" mesh="servo4_link_collision_servo4_link" class="collision" />
+              <geom name="servo4_link_visual" type="mesh" mesh="servo4_link_servo4_link" material="default_material" class="visual" />
+              <body name="grip_kanan" pos="0.061661 -0.013657 -0.041952" quat="0.6956 -0.6956 0.1269 -0.1269">
+                <inertial pos="0.0284350066160728 -0.0258941414767756 -0.000999999999999945" mass="0.00598864139515786" diaginertia="3.89998515612501e-07 9.76471801316146e-07 1.31570141559217e-06" />
+                <joint name="joint_kanan" type="hinge" range="-0.6 0.6"
+                        ref="-0.45" axis="0 0 1" damping="0.5" />
+                <geom name="grip_kanan_collision" type="mesh" mesh="grip_kanan_collision_grip_kanan" class="collision" />
+                <geom name="grip_kanan_visual" type="mesh" mesh="grip_kanan_grip_kanan" material="default_material" class="visual" />
+                <body name="end" pos="0.070615 -0.023503 0.003">
+                </body>
+              </body>
+              <body name="grip_kiri" pos="0.062473 -0.012895 -0.0505" quat="0.6956 -0.6956 0.1269 -0.1269">
+                <inertial pos="0.021416159677082 0.0247217470210284 -0.00200000000000011" mass="0.00598864139515786" diaginertia="3.68105943708231e-07 9.98364373220417e-07 1.31570141559217e-06" />
+                <joint name="joint_kiri" type="hinge" range="-0.6 0.6"
+                        ref="0.45" axis="0 0 1" damping="0.5" />
+                <geom name="grip_kiri_collision" type="mesh" mesh="grip_kiri_collision_grip_kiri" class="collision" />
+                <geom name="grip_kiri_visual" type="mesh" mesh="grip_kiri_grip_kiri" material="default_material" class="visual" />
+                <body name="end_kiri" pos="0.062387 0.025032 0.002" quat="0.9999 0 0 0.0121">
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <site name="tool_tip" pos="0.125165 -0.034423 -0.046991"
+            size="0.006" rgba="1 0 0 1" />
+    </body>
+
+    <light pos="0 0 2." dir="0 0 -1" directional="true" />
+    <!-- <geom name="floor" class="floor" size="0 0 0.1" /> -->
+    <body name="block_orange_1" pos="0.25 0.05 0.0225"><freejoint/>
+      <geom type="box" size="0.03 0.015 0.0225" rgba="1.0 0.5 0.0 1" mass="0.03" contype="1" conaffinity="1"/></body>
+    <body name="block_orange_2" pos="0.20 -0.12 0.0225"><freejoint/>
+      <geom type="box" size="0.03 0.015 0.0225" rgba="1.0 0.5 0.0 1" mass="0.03" contype="1" conaffinity="1"/></body>
+    <body name="block_orange_3" pos="0.28 -0.10 0.0225"><freejoint/>
+      <geom type="box" size="0.03 0.015 0.0225" rgba="1.0 0.5 0.0 1" mass="0.03" contype="1" conaffinity="1"/></body>
+    <body name="block_green_1" pos="0.18 0.14 0.0225"><freejoint/>
+      <geom type="box" size="0.03 0.015 0.0225" rgba="0.0 0.75 0.3 1" mass="0.03" contype="1" conaffinity="1"/></body>
+    <body name="block_green_2" pos="0.30 0.12 0.0225"><freejoint/>
+      <geom type="box" size="0.03 0.015 0.0225" rgba="0.0 0.75 0.3 1" mass="0.03" contype="1" conaffinity="1"/></body>
+    <body name="block_beige_1" pos="0.22 0.0 0.0225"><freejoint/>
+      <geom type="box" size="0.03 0.015 0.0225" rgba="0.93 0.88 0.78 1" mass="0.03" contype="1" conaffinity="1"/></body>
+  </worldbody>
+
+  <equality>
+    <joint joint1="joint_kiri" joint2="joint_kanan"
+            polycoef="0 -1 0 0 0"/>
+  </equality>
+
+  <asset>
+    <material name="default_material" rgba="0.7 0.7 0.7 1" />
+    <mesh name="base_link_collision_base_link" file="base_link.STL" />
+    <mesh name="base_link_base_link" file="base_link.STL" />
+    <mesh name="servo1_link_collision_servo1_link" file="servo1_link.STL" />
+    <mesh name="servo1_link_servo1_link" file="servo1_link.STL" />
+    <mesh name="servo2_link_collision_servo2_link" file="servo2_link.STL" />
+    <mesh name="servo2_link_servo2_link" file="servo2_link.STL" />
+    <mesh name="servo3_link_collision_servo3_link" file="servo3_link.STL" />
+    <mesh name="servo3_link_servo3_link" file="servo3_link.STL" />
+    <mesh name="servo4_link_collision_servo4_link" file="servo4_link.STL" />
+    <mesh name="servo4_link_servo4_link" file="servo4_link.STL" />
+    <mesh name="grip_kanan_collision_grip_kanan" file="grip_kanan.STL" />
+    <mesh name="grip_kanan_grip_kanan" file="grip_kanan.STL" />
+    <mesh name="grip_kiri_collision_grip_kiri" file="grip_kiri.STL" />
+    <mesh name="grip_kiri_grip_kiri" file="grip_kiri.STL" />
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300" />
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2" />
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072" />
+  </asset>
+
+  <actuator>
+    <position name="servo1_joint" joint="servo1_joint" kp="10"
+              ctrlrange="-3.14 3.14" />
+    <position name="servo2_joint" joint="servo2_joint" kp="10"
+              ctrlrange="-3.1416 3.1416" />
+    <position name="servo3_joint" joint="servo3_joint" kp="10"
+              ctrlrange="-3.14 3.14" />
+    <position name="servo4_joint" joint="servo4_joint" kp="10"
+              ctrlrange="-3.14 3.14" />
+    <position name="gripper" joint="joint_kanan" kp="20"
+              ctrlrange="-0.45 0.45" />
+  </actuator>
+
+  <visual>
+    <rgba haze="0.15 0.25 0.35 1" />
+  </visual>
+</mujoco>

@@ -11,6 +11,16 @@ class RobotController {
 private:
   const mjModel *m;
 
+  // For converting angles to the urdf values, taken from arm.yaml
+  double jointDirection[jointCount] = {-1.0, -1.0, -1.0, 1.0};
+  double jointOffset[jointCount] = {
+      0.0,
+      0.8451623298,
+      -1.0275833712,
+      0.1785389586
+  };
+
+
   // gripper and fake grasp
   int gripperActuator = -1;
   int toolSite = -1;

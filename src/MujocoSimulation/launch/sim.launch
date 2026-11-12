@@ -1,6 +1,6 @@
 <launch>
   <node pkg="mujoco_arm_sim" type="mujoco_arm_node" name="mujoco_arm_sim" output="screen">
-    <param name="model_path" value="$(find mujoco_arm_sim)/models/scene_example.xml"/>
+    <param name="model_path" value="$(find mujoco_arm_sim)/models/robot_arm.xml"/>
     <param name="camera_enabled" value="true"/>
     <param name="camera_rate" value="10.0"/>
   </node>

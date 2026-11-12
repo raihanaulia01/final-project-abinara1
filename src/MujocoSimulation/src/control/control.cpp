@@ -24,10 +24,10 @@ RobotController::RobotController(const mjModel *m) : m(m) {
 
 void RobotController::applyJointPos(mjData *d) const {
   for (int i = 0; i < jointCount; i++) {
-    d->ctrl[i] = jointPos[i];
+    d->ctrl[i] = jointDirection[i] * jointPos[i] + jointOffset[i];
   }
+
   if (gripperActuator >= 0) {
-    // gripper actuator's ctrlrange upper bound = closed, lower bound = open
     const mjtNum *range = m->actuator_ctrlrange + 2 * gripperActuator;
     d->ctrl[gripperActuator] = gripperClosed ? range[1] : range[0];
   }
