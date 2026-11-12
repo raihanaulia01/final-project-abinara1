@@ -43,6 +43,7 @@ class LatestFrameReader:
 def main():
     rospy.init_node("detector")
     cfg = rospy.get_param("/vision")
+    image_topic = rospy.get_param("~image_topic", "")
     device = rospy.get_param("~device", cfg["device"])
     if isinstance(device, str) and device.isdigit():
         device = int(device)
@@ -56,27 +57,46 @@ def main():
                              blur=cfg["blur"], morph=cfg["morph"],
                              camera_matrix=K, dist_coeffs=dist)
 
-    reader = LatestFrameReader(device, cfg["width"], cfg["height"], cfg["fps"])
-    rospy.on_shutdown(reader.close)
-
     pub = rospy.Publisher("blocks", BlockArray, queue_size=1)
     publish_debug = rospy.get_param("~publish_debug", True)
     dbg_pub = rospy.Publisher("debug_image", Image, queue_size=1) if publish_debug else None
     bridge = CvBridge()
     frame_id = cfg.get("frame_id", "base_link")
 
+    def process_frame(frame):
+        dets = detector.detect(frame)
+        msg = BlockArray()
+        msg.header.stamp = rospy.Time.now()
+        msg.header.frame_id = frame_id
+        msg.blocks = [
+            Block(color=d.color, x=d.x, y=d.y, u=d.u, v=d.v, area=d.area)
+            for d in dets
+        ]
+        pub.publish(msg)
+        if dbg_pub is not None:
+            dbg_pub.publish(
+                bridge.cv2_to_imgmsg(detector.debug_image(frame, dets), "bgr8")
+            )
+
+    if image_topic:
+        def image_callback(message):
+            try:
+                process_frame(bridge.imgmsg_to_cv2(message, "bgr8"))
+            except Exception as error:
+                rospy.logerr_throttle(5.0, "could not process image: %s", error)
+
+        rospy.Subscriber(image_topic, Image, image_callback, queue_size=1)
+        rospy.loginfo("Using ROS image topic: %s", image_topic)
+        rospy.spin()
+        return
+
+    reader = LatestFrameReader(device, cfg["width"], cfg["height"], cfg["fps"])
+    rospy.on_shutdown(reader.close)
     rate = rospy.Rate(cfg["publish_rate"])
     while not rospy.is_shutdown():
         frame = reader.latest()
         if frame is not None:
-            dets = detector.detect(frame)
-            msg = BlockArray()
-            msg.header.stamp = rospy.Time.now()
-            msg.header.frame_id = frame_id
-            msg.blocks = [Block(color=d.color, x=d.x, y=d.y, u=d.u, v=d.v, area=d.area) for d in dets]
-            pub.publish(msg)
-            if dbg_pub is not None:
-                dbg_pub.publish(bridge.cv2_to_imgmsg(detector.debug_image(frame, dets), "bgr8"))
+            process_frame(frame)
         rate.sleep()
 
 

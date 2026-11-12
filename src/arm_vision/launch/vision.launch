@@ -1,11 +1,13 @@
 <launch>
   <arg name="device" default="0"/>
   <arg name="debug_image" default="true"/>
+  <arg name="image_topic" default=""/>
 
   <rosparam command="load" file="$(find arm_vision)/config/vision.yaml"/>
 
   <node pkg="arm_vision" type="detector_node.py" name="detector" output="screen">
     <param name="device" value="$(arg device)"/>
+    <param name="image_topic" value="$(arg image_topic)"/>
     <param name="publish_debug" value="$(arg debug_image)"/>
     <param name="homography_file" value="$(find arm_vision)/config/homography.yaml"/>
   </node>

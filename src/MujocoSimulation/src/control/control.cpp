@@ -70,6 +70,8 @@ void RobotController::updateGrasp(mjData *d) {
     }
     if (bestBody >= 0) {
       heldBody = bestBody;
+      fprintf(stdout, "[control] grasped %s at %.3f m from tool tip\n",
+              mj_id2name(m, mjOBJ_BODY, heldBody), best);
       mjtNum diff[3];
       mju_sub3(diff, d->xpos + 3 * bestBody, toolPos);
       // position in tool frame
