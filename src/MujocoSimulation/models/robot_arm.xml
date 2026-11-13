@@ -8,8 +8,17 @@
         <geom contype="0" conaffinity="1" group="3" />
       </default>
     </default>
+
     <default class="floor">
       <geom type="plane" size="0 0 0.05" material="groundplane" />
+    </default>
+
+    <default class="block_visual">
+      <geom type="mesh" mesh="target_block" contype="0" conaffinity="0" group="1" mass="0.03"/>
+    </default>
+
+    <default class="block_col">
+      <geom group="3" contype="1" conaffinity="1" density="0" friction="1 0.005 0.0001" rgba="1 0 0 0.3"/>
     </default>
   </default>
 
@@ -90,22 +99,46 @@
     <!-- <geom name="floor" class="floor" size="0 0 0.1" /> -->
     <body name="block_orange_1" pos="0.235 0.085 0"
           quat="0.7071068 0.7071068 0 0"><freejoint/>
-      <geom type="mesh" mesh="target_block" rgba="1.0 0.5 0.0 1" mass="0.03" contype="1" conaffinity="1"/></body>
+      <geom class="block_visual" rgba="1.0 0.5 0.0 1"/>
+      <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.005 0"/>
+      <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.055 0"/>
+      <geom class="block_col" type="cylinder" size="0.015" fromto="0 0.010 0  0 0.050 0"/>
+    </body>
     <body name="block_orange_2" pos="0.305 -0.075 0"
           quat="0.7071068 0.7071068 0 0"><freejoint/>
-      <geom type="mesh" mesh="target_block" rgba="1.0 0.5 0.0 1" mass="0.03" contype="1" conaffinity="1"/></body>
+      <geom class="block_visual" rgba="1.0 0.5 0.0 1"/>
+      <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.005 0"/>
+      <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.055 0"/>
+      <geom class="block_col" type="cylinder" size="0.015" fromto="0 0.010 0  0 0.050 0"/>
+    </body>
     <body name="block_orange_3" pos="0.165 0.175 0"
           quat="0.7071068 0.7071068 0 0"><freejoint/>
-      <geom type="mesh" mesh="target_block" rgba="1.0 0.5 0.0 1" mass="0.03" contype="1" conaffinity="1"/></body>
+      <geom class="block_visual" rgba="1.0 0.5 0.0 1"/>
+      <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.005 0"/>
+      <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.055 0"/>
+      <geom class="block_col" type="cylinder" size="0.015" fromto="0 0.010 0  0 0.050 0"/>
+    </body>
     <body name="block_green_1" pos="0.315 0.025 0"
           quat="0.7071068 0.7071068 0 0"><freejoint/>
-      <geom type="mesh" mesh="target_block" rgba="0.0 0.75 0.3 1" mass="0.03" contype="1" conaffinity="1"/></body>
+      <geom class="block_visual" rgba="0.0 0.75 0.3 1"/>
+      <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.005 0"/>
+      <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.055 0"/>
+      <geom class="block_col" type="cylinder" size="0.015" fromto="0 0.010 0  0 0.050 0"/>
+    </body>
     <body name="block_green_2" pos="0.205 -0.18 0"
           quat="0.7071068 0.7071068 0 0"><freejoint/>
-      <geom type="mesh" mesh="target_block" rgba="0.0 0.75 0.3 1" mass="0.03" contype="1" conaffinity="1"/></body>
+      <geom class="block_visual" rgba="0.0 0.75 0.3 1"/>
+      <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.005 0"/>
+      <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.055 0"/>
+      <geom class="block_col" type="cylinder" size="0.015" fromto="0 0.010 0  0 0.050 0"/>
+    </body>
     <body name="block_beige_1" pos="0.275 0.155 0"
           quat="0.7071068 0.7071068 0 0"><freejoint/>
-      <geom type="mesh" mesh="target_block" rgba="0.93 0.88 0.78 1" mass="0.03" contype="1" conaffinity="1"/></body>
+      <geom class="block_visual" rgba="0.93 0.88 0.78 1"/>
+      <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.005 0"/>
+      <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.055 0"/>
+      <geom class="block_col" type="cylinder" size="0.015" fromto="0 0.010 0  0 0.050 0"/>
+    </body>
   
   <!-- HOMOGRAPHY CALIBRATION -->
 <!-- 
@@ -172,7 +205,7 @@
     <position name="servo4_joint" joint="servo4_joint" kp="10"
               ctrlrange="-3.14 3.14" />
     <position name="gripper" joint="joint_kanan" kp="5"
-              ctrlrange="-0.45 0.45" />
+              ctrlrange="-0.45 -0.2" />
   </actuator>
 
   <visual>
