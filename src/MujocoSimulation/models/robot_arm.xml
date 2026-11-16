@@ -69,6 +69,7 @@
                       axis="0 0 1" damping="1" />
               <geom name="servo4_link_collision" type="mesh" mesh="servo4_link_collision_servo4_link" class="collision" />
               <geom name="servo4_link_visual" type="mesh" mesh="servo4_link_servo4_link" material="default_material" class="visual" />
+              <site name="tool_tip" pos="0.093616 -0.023850 -0.046608" size="0.006" rgba="1 0 0 1" />
               <body name="grip_kanan" pos="0.061661 -0.013657 -0.041952" quat="0.6956 -0.6956 0.1269 -0.1269">
                 <inertial pos="0.0284350066160728 -0.0258941414767756 -0.000999999999999945" mass="0.00598864139515786" diaginertia="3.89998515612501e-07 9.76471801316146e-07 1.31570141559217e-06" />
                 <joint name="joint_kanan" type="hinge" range="-0.6 0.6"
@@ -91,8 +92,6 @@
           </body>
         </body>
       </body>
-      <site name="tool_tip" pos="0.125165 -0.034423 -0.046991"
-            size="0.006" rgba="1 0 0 1" />
     </body>
 
     <!-- <light pos="0 0 2." dir="0 0 -1" directional="true" /> -->

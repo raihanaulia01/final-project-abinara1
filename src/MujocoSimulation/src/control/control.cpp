@@ -62,7 +62,11 @@ void RobotController::updateGrasp(mjData *d) {
     double best = graspRadius;
     int bestBody = -1;
     for (int b : blocks) {
-      double dist = mju_dist3(toolPos, d->xpos + 3 * b);
+      const mjtNum off[3] = {0, 0.03, 0};   // pillar center in block frame
+      mjtNum gp[3];
+      mju_mulMatVec(gp, d->xmat + 9 * b, off, 3, 3);
+      mju_addTo3(gp, d->xpos + 3 * b);
+      double dist = mju_dist3(toolPos, gp);
       if (dist < best) {
         best = dist;
         bestBody = b;
