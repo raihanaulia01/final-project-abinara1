@@ -19,6 +19,7 @@ def main():
     tolerance = float(ik_config.get("tolerance", 1.0e-5))
     damping = float(ik_config.get("damping", 0.1))
     current_q = [float(value) for value in initial_q]
+    grasp_pitch_deg = float(rospy.get_param("~grasp_pitch_deg", -20.0))
     rospy.loginfo("Using numeric damped-least-squares inverse-kinematics solver")
 
     def handle(request):
@@ -28,7 +29,7 @@ def main():
             max_iterations=max_iterations,
             tolerance=tolerance,
             damping=damping,
-            pitch_target=None if request.allow_tilt else math.radians(-90),
+            pitch_target=None if request.allow_tilt else math.radians(grasp_pitch_deg),
         )
         if solution is None:
             return SolveIKResponse(
