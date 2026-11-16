@@ -1,0 +1,13 @@
+<launch>
+  <arg name="port" default="/dev/arm_controller"/> 
+  <arg name="baud" default="115200"/>
+  <arg name="heartbeat_hz" default="0"/>
+
+  <rosparam command="load" file="$(find arm_kinematics)/config/arm.yaml"/>
+
+  <node pkg="arm_hardware" type="bridge_node.py" name="bridge" output="screen">
+    <param name="port" value="$(arg port)"/>
+    <param name="baud" value="$(arg baud)"/>
+    <param name="heartbeat_hz" value="$(arg heartbeat_hz)"/>
+  </node>
+</launch>
