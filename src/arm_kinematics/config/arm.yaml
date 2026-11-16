@@ -11,7 +11,7 @@ arm:
   chain:
     - origin: [0.007168, 0.0, 0.1125]
       rpy: [0.0, 0.0, 0.0]
-      axis: [-0.063586, 0.0, -0.99798]
+      axis: [0.0, 0.0, -1.0]
       direction: -1.0
       offset: 0.0
     - origin: [0.0024206, -0.045, 0.04035]
@@ -31,15 +31,15 @@ arm:
       offset: 0.17853895860548616
   snap_axis_tol_deg: 5.0
   tcp:
-    origin: [0.12516548680794948, -0.03442343363876876, -0.0469905091830076]
+    origin: [0.093616, -0.023850, -0.046608]
     rpy: [0.0, 0.0, 0.0]
   joints:
     # ! PLACEHOLDER limits,  replace with the real servo travel.
     limits:
       - [-1.5708, 1.5708]
-      - [0.0, 3.1416]
-      - [-2.618, 0.5236]
-      - [-2.0944, 2.0944]
+      - [-3.1416, 3.1416]
+      - [-3.1416, 3.1416]
+      - [-3.1416, 3.1416]
     # servo_deg = zero_deg + direction * degrees(q) (applied only for the servo output)
     zero_deg: [0.0, 0.0, 0.0, 0.0]
     direction: [1.0, 1.0, 1.0, 1.0]

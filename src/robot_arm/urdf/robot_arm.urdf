@@ -95,7 +95,7 @@
     <child
       link="servo1_link" />
     <axis
-      xyz="-0.063586 0 -0.99798" />
+      xyz="0 0 -1" />
     <limit
       lower="-3.14"
       upper="3.14"

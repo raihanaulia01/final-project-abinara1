@@ -48,7 +48,7 @@
       <body name="servo1_link" pos="0.007168 0 0.1125">
         <inertial pos="0.0025516 2.6409E-05 0.013925" mass="0.25507" diaginertia="0.0003669 0.00028286 0.00047477" />
         <joint name="servo1_joint" type="hinge" range="-3.14 3.14"
-                axis="-0.063586 0 -0.99798" damping="1" />
+                axis="0 0 -1" damping="1" />
         <geom name="servo1_link_collision" type="mesh" mesh="servo1_link_collision_servo1_link" class="collision" />
         <geom name="servo1_link_visual" type="mesh" mesh="servo1_link_servo1_link" material="default_material" class="visual" />
         <body name="servo2_link" pos="0.0024206 -0.045 0.04035" quat="0.7071 0.7071 0 0">
