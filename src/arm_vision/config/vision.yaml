@@ -5,11 +5,11 @@ vision:
   fps: 30
   publish_rate: 10
   frame_id: base_link
-  min_area_px: 400
+  min_area_px: 700
   max_area_px: 40000
   blur: 5
   morph: 5
   colors:
     orange: {lo: [5, 130, 120],  hi: [20, 255, 255]}
-    green:  {lo: [40, 80, 60],   hi: [85, 255, 255]}
+    black:  {lo: [0, 0, 0], hi: [179, 80, 55]}
     beige:  {lo: [10, 15, 170],  hi: [35, 90, 255]}

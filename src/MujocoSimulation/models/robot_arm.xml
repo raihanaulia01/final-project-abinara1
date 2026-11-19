@@ -32,12 +32,13 @@
 
   <visual>
     <global offwidth="3840" offheight="2160" />
+    <headlight ambient="0.35 0.35 0.35" diffuse="0.35 0.35 0.35" specular="0 0 0" />
   </visual>
 
   <worldbody>
     <light pos="0.2 0 1.5" dir="0 0 -1" diffuse="0.5 0.5 0.5" castshadow="false"/>
 
-    <geom name="table" type="plane" size="0.8 0.8 0.01" pos="0 0 0" rgba="0.35 0.35 0.35 1"
+    <geom name="table" type="plane" size="0.8 0.8 0.01" pos="0 0 0" rgba="0.35 0.65 0.35 1"
           contype="1" conaffinity="1" friction="1 0.005 0.0001"/>
 
     <camera name="arena_cam" pos="0.20 0 0.60" xyaxes="0 -1 0 1 0 0" fovy="55"/>
@@ -117,16 +118,16 @@
       <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.055 0"/>
       <geom class="block_col" type="cylinder" size="0.015" fromto="0 0.010 0  0 0.050 0"/>
     </body>
-    <body name="block_green_1" pos="0.315 0.025 0"
+    <body name="block_black_1" pos="0.315 0.025 0"
           quat="0.7071068 0.7071068 0 0"><freejoint/>
-      <geom class="block_visual" rgba="0.0 0.75 0.3 1"/>
+      <geom class="block_visual" rgba="0.1 0.1 0.1 1"/>
       <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.005 0"/>
       <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.055 0"/>
       <geom class="block_col" type="cylinder" size="0.015" fromto="0 0.010 0  0 0.050 0"/>
     </body>
-    <body name="block_green_2" pos="0.205 -0.18 0"
+    <body name="block_black_2" pos="0.205 -0.18 0"
           quat="0.7071068 0.7071068 0 0"><freejoint/>
-      <geom class="block_visual" rgba="0.0 0.75 0.3 1"/>
+      <geom class="block_visual" rgba="0.1 0.1 0.1 1"/>
       <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.005 0"/>
       <geom class="block_col" type="box" size="0.025 0.005 0.025" pos="0 0.055 0"/>
       <geom class="block_col" type="cylinder" size="0.015" fromto="0 0.010 0  0 0.050 0"/>
@@ -173,7 +174,7 @@
   </equality>
 
   <asset>
-    <material name="default_material" rgba="0.7 0.7 0.7 1" />
+    <material name="default_material" rgba="0.9 0.9 0.9 1" />
     <mesh name="base_link_collision_base_link" file="base_link.STL" />
     <mesh name="base_link_base_link" file="base_link.STL" />
     <mesh name="servo1_link_collision_servo1_link" file="servo1_link.STL" />
