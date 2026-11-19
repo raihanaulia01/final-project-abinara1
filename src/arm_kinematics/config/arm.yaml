@@ -34,9 +34,8 @@ arm:
     origin: [0.093616, -0.023850, -0.046608]
     rpy: [0.0, 0.0, 0.0]
   joints:
-    # ! PLACEHOLDER limits,  replace with the real servo travel.
     limits:
-      - [-1.5708, 1.5708]
+      - [-3.1416, 3.1416]
       - [-3.1416, 3.1416]
       - [-3.1416, 3.1416]
       - [-3.1416, 3.1416]

@@ -34,18 +34,12 @@ void RobotController::applyJointPos(mjData *d) const {
 }
 
 void RobotController::checkJointLimits() {
-  // check joint limits, stored in i*2 for min and i*2 + 1 for max
   for (int i = 0; i < jointCount; i++) {
     if (!m->jnt_limited[i])
       continue;
-
-    double jointMin = m->jnt_range[i*2];
-    double jointMax = m->jnt_range[i*2 + 1];
-
-    if (jointPos[i] > jointMax)
-      jointPos[i] = jointMax;
-    else if (jointPos[i] < jointMin)
-      jointPos[i] = jointMin;
+    double a = (m->jnt_range[2 * i]     - jointOffset[i]) / jointDirection[i];
+    double b = (m->jnt_range[2 * i + 1] - jointOffset[i]) / jointDirection[i];
+    jointPos[i] = std::min(std::max(jointPos[i], std::min(a, b)), std::max(a, b));
   }
 }
 
