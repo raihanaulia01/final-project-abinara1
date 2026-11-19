@@ -62,7 +62,8 @@ def main():
         write(P.build_frame(P.CMD_ACK, bytes([orig_cmd, err_code]) + extra))
 
     def send_status():
-        dist_mm = int(180 + random.uniform(-3, 3))
+        dist_mm = 40 if cur_rad[P.JOINT_GRIP] < -0.15 else 180
+        dist_mm = int(dist_mm + random.uniform(-3, 3))
         flags = P.FLAG_ECHO_VALID
         if failsafe:
             flags |= P.FLAG_FAILSAFE

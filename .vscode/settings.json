@@ -4,6 +4,7 @@
   "python.analysis.extraPaths": [
     "./src/arm_vision/src",
     "./src/arm_kinematics/src",
+    "./src/arm_hardware/src",
     "${workspaceFolder}/devel/lib/python3/dist-packages"
   ]
 }

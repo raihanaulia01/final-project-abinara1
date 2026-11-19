@@ -14,6 +14,7 @@ import math
 import rospy
 from sensor_msgs.msg import JointState, Range
 from std_msgs.msg import Float64
+from std_msgs.msg import String
 
 from arm_hardware import protocol
 from arm_hardware.serial_link import SerialLink
@@ -68,7 +69,9 @@ class Bridge:
             self.link.send(protocol.encode_stream(True, stream_period_ms))
 
         rospy.Subscriber("joint_command", JointState, self.on_command, queue_size=1)
-        rospy.Subscriber("gripper_command", Float64, self.on_gripper_command, queue_size=1)
+        self.gripper_open_rad = float(rospy.get_param("~gripper_open_rad", 0.3))
+        self.gripper_close_rad = float(rospy.get_param("~gripper_close_rad", -0.3))
+        rospy.Subscriber("gripper_command", String, self.on_gripper_command, queue_size=1)
 
         ping_hz = float(rospy.get_param("~ping_hz", 20.0))
         if ping_hz <= 0:
@@ -114,11 +117,21 @@ class Bridge:
         self.link.send(protocol.encode_set_angles(servo_rad, self.move_duration_ms))
 
     def on_gripper_command(self, msg):
-        self.grip_rad = float(msg.data)
+        cmd = msg.data.strip().lower()
+        if cmd == "open":
+            self.grip_rad = self.gripper_open_rad
+        elif cmd == "close":
+            self.grip_rad = self.gripper_close_rad
+        else:
+            try:
+                self.grip_rad = float(cmd)
+            except ValueError:
+                rospy.logwarn("Invalid gripper_command '%s' (expected 'open', 'close', or float rad)", msg.data)
+                return
+
         self.link.send(protocol.encode_set_joint(
             protocol.JOINT_GRIP, self.grip_rad, self.move_duration_ms
         ))
-        rospy.loginfo(f"sending command {self.grip_rad} {self.move_duration_ms}")
 
     def ping(self, _event):
         self.link.send(protocol.encode_ping())

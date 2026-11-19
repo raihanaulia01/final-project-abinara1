@@ -10,4 +10,9 @@
     <param name="baud" value="$(arg baud)"/>
     <param name="heartbeat_hz" value="$(arg heartbeat_hz)"/>
   </node>
+
+  <node pkg="arm_hardware" type="presence_node.py" name="gripper_presence" output="screen">
+    <param name="near_m" value="0.06"/>
+    <param name="far_m" value="0.09"/>
+  </node>
 </launch>
