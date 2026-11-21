@@ -2,8 +2,32 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 
-RobotController::RobotController(const mjModel *m) : m(m) {
+RobotController::RobotController(const mjModel *m,
+                                 const ros::NodeHandle &nodeHandle)
+    : m(m) {
+  XmlRpc::XmlRpcValue chain;
+  if (!nodeHandle.getParam("/arm/chain", chain) ||
+      chain.getType() != XmlRpc::XmlRpcValue::TypeArray ||
+      chain.size() != jointCount) {
+    ROS_FATAL("expected /arm/chain to contain %d joint conversion entries",
+              jointCount);
+    throw std::runtime_error("invalid /arm/chain simulator conversion parameters");
+  }
+
+  for (int i = 0; i < jointCount; i++) {
+    XmlRpc::XmlRpcValue &joint = chain[i];
+    if (joint.getType() != XmlRpc::XmlRpcValue::TypeStruct ||
+        !joint.hasMember("direction") || !joint.hasMember("offset")) {
+      ROS_FATAL("missing direction or offset in /arm/chain[%d]", i);
+      throw std::runtime_error("invalid /arm/chain simulator conversion parameters");
+    }
+    jointDirection[i] = static_cast<double>(joint["direction"]);
+    jointOffset[i] = static_cast<double>(joint["offset"]);
+  }
+
   gripperActuator = mj_name2id(m, mjOBJ_ACTUATOR, "gripper");
   toolSite = mj_name2id(m, mjOBJ_SITE, "tool_tip");
 

@@ -1,4 +1,5 @@
 <launch>
+  <rosparam command="load" file="$(find arm_kinematics)/config/arm.yaml"/>
   <node pkg="mujoco_arm_sim" type="mujoco_arm_node" name="mujoco_arm_sim" output="screen">
     <param name="model_path" value="$(find mujoco_arm_sim)/models/robot_arm.xml"/>
     <param name="camera_enabled" value="true"/>

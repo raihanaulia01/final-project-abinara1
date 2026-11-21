@@ -40,7 +40,7 @@ arm:
       - [-3.1416, 3.1416]
       - [-3.1416, 3.1416]
     # servo_deg = zero_deg + direction * degrees(q) (applied only for the servo output)
-    zero_deg: [0.0, 0.0, 0.0, 0.0]
+    zero_deg: [0.0, -90, 0.0, 0.0]
     direction: [1.0, 1.0, 1.0, 1.0]
   floor_clearance: 0.01
   ik:

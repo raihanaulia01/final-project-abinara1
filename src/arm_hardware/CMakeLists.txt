@@ -6,4 +6,5 @@ catkin_package()
 catkin_install_python(PROGRAMS
   scripts/bridge_node.py
   scripts/fake_mcu.py
+  scripts/presence_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

@@ -1,0 +1,4 @@
+<launch>
+  <rosparam command="load" file="$(find arm_task)/config/task.yaml"/>
+  <node pkg="arm_task" type="task_node.py" name="arm_task" output="screen"/>
+</launch>

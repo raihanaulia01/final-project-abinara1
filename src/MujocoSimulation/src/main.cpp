@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
   if (!sim.initialize(model_path.c_str()))
     return 1;
 
-  RobotController ctrl(sim.m);
+  RobotController ctrl(sim.m, nh);
   RosInterface rosInterface(nh, ctrl);
   callbacks::initialize(&sim, &ctrl, sim.window);
 

@@ -2,6 +2,7 @@
 #define CONTROL_H
 
 #include <mujoco/mujoco.h>
+#include "ros/ros.h"
 #include <vector>
 
 // Number of arm joints. the gripper isn't counted. Arm must be defined before blocks in the MJCF.
@@ -11,14 +12,9 @@ class RobotController {
 private:
   const mjModel *m;
 
-  // For converting angles to the urdf values, taken from arm.yaml
-  double jointDirection[jointCount] = {-1.0, -1.0, -1.0, 1.0};
-  double jointOffset[jointCount] = {
-      0.0,
-      0.8451623298,
-      -1.0275833712,
-      0.1785389586
-  };
+  // Model-frame angles to MuJoCo/URDF joint values, loaded from arm.yaml.
+  double jointDirection[jointCount] = {};
+  double jointOffset[jointCount] = {};
 
 
   // gripper and fake grasp
@@ -34,7 +30,7 @@ public:
   double jointPos[jointCount] = {0, 0, 0, 0};
   bool gripperClosed = false;
 
-  RobotController(const mjModel *m);
+  RobotController(const mjModel *m, const ros::NodeHandle &nodeHandle);
 
   void checkJointLimits();
   void applyJointPos(mjData *d) const;

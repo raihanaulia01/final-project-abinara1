@@ -1,0 +1,39 @@
+task:
+  joint_names: [base, shoulder, elbow, wrist]
+  home_q: [0.0, 1.65, -0.09, 0.28]
+
+  # ---- grasp geometry (side grasp of the round web) -----------------------------------
+  grasp_pitch_deg: -20.0                    # Gripper pitch for every waypoint
+  allow_tilt: false                         # false = hold grasp_pitch_deg (pls don't set this to true)
+  web_center_z: 0.05                        # tool height at the pillar centre (flanges 10 mm, web 40 mm)
+  block_width: 0.05
+  block_height: 0.06
+  approach_distance: 0.07                   # straight-line run-in along the finger axis
+  approach_fallbacks: [0.06, 0.04, 0.02]    # shorter run-ins tried if the pre-point is out of joint limits
+  lift: 0.1                                 # lift after closing, so the block is clear of the table
+  travel_z: 0.2                             # tool height while moving
+  release_margin: 0.003                     # release 3 mm above contact
+
+  # ---- pyramid ------------------------------------------------------------------------
+  stack_yaw_deg: -80.0
+  stack_radius: 0.255
+  row_gap: 0.008
+
+  # ---- block selection ----------------------------------------------------------------
+  ignore_yaw_below_deg: -58.0      # hides placed blocks and their parallax-shifted images
+  pick_r_min: 0.17
+  pick_r_max: 0.34
+  min_clearance: 0.0001            # centre-to-centre; closer blocks merge in the detector
+  corridor_half_width: 0.04
+  corridor_extra: 0.05
+  blacklist_radius: 0.02
+  max_attempts: 2
+
+  # ---- timing -------------------------------------------------------------------------
+  joint_speed: 1.0
+  settle_time: 0.3
+  gripper_close_time: 0.8
+  gripper_open_time: 0.8
+  detection_timeout: 1.0
+  look_timeout: 5.0
+  use_presence: false
