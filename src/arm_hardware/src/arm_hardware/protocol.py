@@ -81,7 +81,7 @@ def crc8(data: bytes, poly: int = 0x07, init: int = 0x00) -> int:
         for _ in range(8):
             crc = ((crc << 1) ^ poly) & 0xFF if crc & 0x80 else (crc << 1) & 0xFF
     return crc
-1    # extra[0] = bitmask of clamped joints (bit 0 = BASE .. bit 4 = GRIP)
+
 
 def build_frame(cmd: int, payload: bytes = b"") -> bytes:
     if len(payload) > MAX_PAYLOAD:
