@@ -2,7 +2,7 @@ arm:
   # With PWM servos this is the last commanded pose, not actual feedback from the servo
   # (model frame, rad: q1 CCW yaw, q2 = 0 horizontal and positive raises, q3/q4 relative to
   # the previous link, negative elbow = bent down, pitch = q2 + q3 + q4)
-  initial_q: [0.0, 1.0, -1.5, -1.0]
+  initial_q: [0.0, 0.0, 0.0, 0.0]
   # origin / rpy / axis are copied from robot_arm_1.urdf.
   # direction / offset convert the MODEL-frame q to the URDF joint value:
   #     urdf_value = direction * q + offset
@@ -35,15 +35,25 @@ arm:
     rpy: [0.0, 0.0, 0.0]
   joints:
     limits:
-      - [-3.1416, 3.1416]
-      - [-3.1416, 3.1416]
-      - [-3.1416, 3.1416]
-      - [-3.1416, 3.1416]
-    # servo_deg = zero_deg + direction * degrees(q) (applied only for the servo output)
-    zero_deg: [0.0, -90, 0.0, 0.0]
+      # raw joint limits
+      # - [-1.523, 1.523] 
+      # - [-1.523, 1.523]
+      # - [-1.319, 1.523]
+      # - [-1.523, 1.523]
+
+      # - [-1.523, 1.523]     # base
+      # - [0.048, 3.094]      # shoulder  (servo + 90 deg)
+      # - [-1.930, 0.912]     # elbow     (servo - 35 deg)
+      # - [-1.523, 1.523]     # wrist
+      
+      - [-1.523, 1.523]     # base  (-87.3 .. 87.3 deg)
+      - [-0.126, 2.919]     # shoulder  (-7.2 .. 167.2 deg)
+      - [-2.017, 0.824]     # elbow  (-115.6 .. 47.2 deg)
+      - [-1.697, 1.348]     # wrist  (-97.2 .. 77.2 deg)
+    zero_deg: [0, -80, 40, 10]
     direction: [1.0, 1.0, 1.0, 1.0]
   floor_clearance: 0.01
   ik:
-    max_iterations: 500
+    max_iterations: 250
     tolerance: 1.0e-5
     damping: 0.1

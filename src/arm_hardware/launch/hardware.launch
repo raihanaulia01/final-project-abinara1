@@ -1,5 +1,5 @@
 <launch>
-  <arg name="port" default="/dev/arm_controller"/> 
+  <arg name="port" default="/dev/ttyUSB0"/> 
   <arg name="baud" default="115200"/>
   <arg name="heartbeat_hz" default="0"/>
 

@@ -49,7 +49,6 @@ class BlockDetector:
         self.dist_coeffs = dist_coeffs
 
     def undistort(self, frame):
-        # homography must be calibrated on undistorted pixels too
         if self.camera_matrix is None:
             return frame
         return cv2.undistort(frame, self.camera_matrix, self.dist_coeffs)

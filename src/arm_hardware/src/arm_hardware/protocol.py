@@ -9,7 +9,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 HEADER = b"\xAA\x55"
 MAX_PAYLOAD = 32
 
-# Host -> MCU commands
+# Host to MCU commands
 CMD_PING = 0x01          # LEN 0: keepalive & version query
 CMD_SET_ANGLES = 0x02    # LEN 12: <5hH (5 x int16 mrad + uint16 duration_ms)
 CMD_HOME = 0x03          # LEN 2:  <H   (uint16 duration_ms)
@@ -19,7 +19,7 @@ CMD_STREAM = 0x06        # LEN 3:  <BH  (uint8 enable 0/1 + uint16 period_ms)
 CMD_GET_DIAG = 0x07      # LEN 0:  request single DIAG frame
 CMD_SET_JOINT = 0x08     # LEN 5:  <BhH (uint8 joint_id + int16 mrad + uint16 duration_ms)
 
-# MCU -> Host responses
+# MCU to Host responses
 CMD_ACK = 0x81           # LEN 2..5: [orig_cmd, err_code, ...extra]
 CMD_STATUS = 0x82        # LEN 14:   <5hHH (5 x int16 mrad + uint16 dist_mm + uint16 flags)
 CMD_DIAG = 0x83          # LEN 24:   <12H  (12 cumulative uint16 diagnostic counters)
@@ -81,7 +81,7 @@ def crc8(data: bytes, poly: int = 0x07, init: int = 0x00) -> int:
         for _ in range(8):
             crc = ((crc << 1) ^ poly) & 0xFF if crc & 0x80 else (crc << 1) & 0xFF
     return crc
-
+1    # extra[0] = bitmask of clamped joints (bit 0 = BASE .. bit 4 = GRIP)
 
 def build_frame(cmd: int, payload: bytes = b"") -> bytes:
     if len(payload) > MAX_PAYLOAD:

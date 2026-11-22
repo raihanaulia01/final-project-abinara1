@@ -27,7 +27,7 @@ class Slot:
 def radial_unit(x: float, y: float) -> Tuple[float, float]:
     r = math.hypot(x, y)
     if r < 1e-6:
-        raise ValueError("target is on the base axis, radial direction undefined")
+        raise ValueError("target is on the base axis")
     return x / r, y / r
 
 
@@ -99,7 +99,7 @@ def place_waypoints(slot: Slot, cfg: Dict, distance: Optional[float] = None) -> 
     pre = backoff(slot.x, slot.y, z, d, pitch)
     return [
         Waypoint("above_preplace", pre[0], pre[1], travel),
-        Waypoint("preplace", pre[0], pre[1], pre[2], wait=settle),
+        # Waypoint("preplace", pre[0], pre[1], pre[2], wait=settle),
         Waypoint("place", slot.x, slot.y, z, gripper="open", wait=cfg["gripper_open_time"]),
         Waypoint("withdraw", pre[0], pre[1], pre[2], wait=settle),
         Waypoint("withdraw_up", pre[0], pre[1], travel),
@@ -108,14 +108,12 @@ def place_waypoints(slot: Slot, cfg: Dict, distance: Optional[float] = None) -> 
 
 def select_block(blocks: Iterable, color: str, cfg: Dict,
                  blacklist: Sequence[Tuple[float, float]] = ()):
-    """Most isolated reachable block of `color` with a clear radial approach corridor.
+    """Most isolated reachable block of 'color' with a clear approach corridor.
 
-    * detections whose yaw is below `ignore_yaw_below_deg` are ignored, which hides blocks
+    * detections whose yaw is below 'ignore_yaw_below_deg' are ignored, which hides blocks
       already placed in the stacking wedge (and their parallax-shifted images)
-    * the corridor is the strip inward of the block (width +-corridor_half_width, length
-      approach_distance + corridor_extra) in which no other block may stand
-    * blocks closer than `min_clearance` to another block are skipped (they would merge in
-      the detector and the fingers would not fit)
+    * the corridor is the strip inward of the block in which no other block may stand
+    * blocks closer than 'min_clearance' to another block are skipped
     """
     live = [b for b in blocks if yaw_deg(b.x, b.y) >= cfg["ignore_yaw_below_deg"]]
     corridor_len = cfg["approach_distance"] + cfg["corridor_extra"]

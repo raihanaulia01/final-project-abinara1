@@ -1,11 +1,4 @@
 #!/usr/bin/env python3
-"""Reach table for the real chain.
-
-  check_reach.py --z 0.03 0.09 0.15 0.23 --rmin 0.16 --rmax 0.35 --tilt
-
-For every (z, radius) it tries a vertical gripper (pitch -90 deg); with --tilt it also reports
-the steepest pitch from a list that works, and a position-only solve.
-"""
 import math, yaml
 from arm_kinematics.ik import ArmGeometry, JointConfig, solve_numeric
 from arm_task import plan

@@ -1,0 +1,15 @@
+vision:
+  device: 0
+  width: 640
+  height: 480
+  fps: 30
+  publish_rate: 10
+  frame_id: base_link
+  min_area_px: 700
+  max_area_px: 40000
+  blur: 5
+  morph: 5
+  colors:
+    orange: {lo: [2, 115, 128],  hi: [24, 222, 255]}
+    black:  {lo: [0, 0, 0], hi: [179, 59, 122]}
+    beige:  {lo: [15, 0, 167],  hi: [79, 67, 255]}

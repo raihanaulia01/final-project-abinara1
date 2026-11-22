@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 """Interactive HSV tuning. Move the sliders until only one block colour is white in the mask.
-Press 'p' to print a line you can paste into vision.yaml, ESC to quit.
-  ./tune_hsv.py --device 0      (or --image frame.png)
-Tune under the real lighting, with the real blocks on the real arena surface.
 """
 import argparse
 

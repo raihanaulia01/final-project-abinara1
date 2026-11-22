@@ -7,5 +7,8 @@
     "./src/arm_hardware/src",
     "./src/arm_task/src",
     "${workspaceFolder}/devel/lib/python3/dist-packages"
-  ]
+  ],
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportArgumentType": "none"
+  }
 }

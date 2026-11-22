@@ -5,6 +5,8 @@ import rospy
 from arm_msgs.srv import SolveIK, SolveIKResponse
 
 from arm_kinematics.ik import ArmGeometry, JointConfig, solve_numeric
+from typing import Dict, Sequence, cast
+
 
 
 def main():
@@ -12,7 +14,7 @@ def main():
     config = rospy.get_param("/arm")
     geometry = ArmGeometry.from_params(config)
     joints = JointConfig.from_params(config["joints"])
-    preferred = JointConfig(((-1.5708, 1.5708),) * 4, joints.zero_deg, joints.direction)
+    preferred = JointConfig(tuple((max(lo, -1.5708), min(hi, 1.5708)) for lo, hi in joints.limits), joints.zero_deg, joints.direction)
     floor_clearance = float(config.get("floor_clearance", 0.01))
     initial_q = config.get("initial_q", [0.0, 1.0, -1.5, -1.0])
     ik_config = config.get("ik", {})
@@ -20,7 +22,7 @@ def main():
     tolerance = float(ik_config.get("tolerance", 1.0e-5))
     damping = float(ik_config.get("damping", 0.1))
     current_q = [float(value) for value in initial_q]
-    grasp_pitch_deg = float(rospy.get_param("~grasp_pitch_deg", -20.0))
+    grasp_pitch_deg = float(rospy.get_param("~grasp_pitch_deg", rospy.get_param("/task/grasp_pitch_deg", -20.0)))
     rospy.loginfo("Using numeric damped-least-squares inverse-kinematics solver")
 
     def handle(request):

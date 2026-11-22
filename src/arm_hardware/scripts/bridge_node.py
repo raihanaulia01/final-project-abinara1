@@ -46,7 +46,7 @@ class Bridge:
         self._version_logged = False
         self._in_failsafe = False
 
-        port = rospy.get_param("~port", "/dev/arm_controller")
+        port = rospy.get_param("~port", "/dev/ttyUSB0")
         baud = rospy.get_param("~baud", 115200)
         try:
             self.link = SerialLink(port, baud, self.on_frame, self.on_error)
@@ -69,8 +69,8 @@ class Bridge:
             self.link.send(protocol.encode_stream(True, stream_period_ms))
 
         rospy.Subscriber("joint_command", JointState, self.on_command, queue_size=1)
-        self.gripper_open_rad = float(rospy.get_param("~gripper_open_rad", 0.3))
-        self.gripper_close_rad = float(rospy.get_param("~gripper_close_rad", -0.3))
+        self.gripper_open_rad = float(rospy.get_param("~gripper_open_rad", 0))
+        self.gripper_close_rad = float(rospy.get_param("~gripper_close_rad", 0.55))
         rospy.Subscriber("gripper_command", String, self.on_gripper_command, queue_size=1)
 
         ping_hz = float(rospy.get_param("~ping_hz", 20.0))
@@ -115,6 +115,7 @@ class Bridge:
             servo_rad.append(self.grip_rad)
 
         self.link.send(protocol.encode_set_angles(servo_rad, self.move_duration_ms))
+        rospy.loginfo("sent servo cmd: %.3f %.3f %.3f %.3f %.3f", servo_rad[0], servo_rad[1], servo_rad[2], servo_rad[3], servo_rad[4])
 
     def on_gripper_command(self, msg):
         cmd = msg.data.strip().lower()

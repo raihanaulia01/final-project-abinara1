@@ -41,7 +41,7 @@ class TaskNode:
         self.last_q = list(self.home_q)
         self.state = "init"
 
-    # ---- callbacks -------------------------------------------------------------------
+    # callbacks
     def blocks_callback(self, message):
         with self.lock:
             self.latest_blocks = list(message.blocks)
@@ -50,7 +50,7 @@ class TaskNode:
     def presence_callback(self, message):
         self.holding = bool(message.data)
 
-    # ---- helpers ---------------------------------------------------------------------
+    # helpers 
     def set_state(self, state):
         self.state = state
         rospy.loginfo("arm_task state: %s", state)
@@ -125,7 +125,7 @@ class TaskNode:
             if waypoint.wait > 0:
                 rospy.sleep(waypoint.wait)
 
-    # ---- one block -------------------------------------------------------------------
+    # one block 
     def pick_and_place(self, color, slot):
         cfg = self.cfg
         blacklist = []
@@ -140,7 +140,7 @@ class TaskNode:
             self.set_state("select")
             rospy.loginfo("selected %s block at (%.3f, %.3f)", color, block.x, block.y)
 
-            # solve the WHOLE pick + place sequence before moving; fall back to shorter run-ins
+            # solve the entire pick + place sequence before moving. fall back to shorter run-ins
             qs = failed = pick_wps = place_wps = None
             for distance in plan.approach_distances(cfg):
                 pick_wps = plan.pick_waypoints(block.x, block.y, cfg, distance)
@@ -176,7 +176,7 @@ class TaskNode:
             return True
         return False
 
-    # ---- whole task ------------------------------------------------------------------
+    # whole task 
     def fail(self, message):
         self.set_state("error")
         rospy.logerr("arm_task stopped: %s", message)
